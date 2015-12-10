@@ -31,7 +31,7 @@
 
     if (isset($_GET["e"])) {
         $url .= $_GET["e"];
-    } elseif (isset($_GET["e"])) {
+    } elseif (isset($_GET["c"])) {
         $url .= 'c' . hex2rgb($_GET["c"]);
     }
     
