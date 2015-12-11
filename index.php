@@ -8,26 +8,10 @@
 -->
 
 <?php
-    
-    $timeout = 1;                   // Temps (s) d'attente de la réponse de la lampe avant le timeout
+    include('lib/hex2rgb.php');
+
+    $timeout = 8;                   // Temps (s) d'attente de la réponse de la lampe avant le timeout
     $url = 'http://192.168.0.25/';  // Adresse de la lampe
-
-    // Convertit une couleur #hexa en couleur RGB
-    function hex2rgb($hex) {
-        $hex = str_replace("#", "", $hex);
-
-        if(strlen($hex) == 3) {
-            $r = hexdec(substr($hex,0,1).substr($hex,0,1));
-            $g = hexdec(substr($hex,1,1).substr($hex,1,1));
-            $b = hexdec(substr($hex,2,1).substr($hex,2,1));
-        } else {
-            $r = hexdec(substr($hex,0,2));
-            $g = hexdec(substr($hex,2,2));
-            $b = hexdec(substr($hex,4,2));
-        }
-        $rgb = array($r, $g, $b);
-        return implode(",", $rgb); // returns the rgb values separated by commas
-    }
 
     if (isset($_GET["e"])) {
         $url .= $_GET["e"];
@@ -41,31 +25,34 @@
     curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);    // timeout en secondes
     $output = curl_exec($ch);                       // execute
     curl_close($ch);                                // ferme la connexion
+
     
-    // Si la lampe a répondu
+    // Si la lampe a répondu (eRRRGGGBBB)
     if ($output != '') 
     {
-        // On scan l'état de la lampe dans la réponse: "on" ou "off"
-        if (strpos("on", $output) !== false) {
+        // On scan l'état de la lampe dans la réponse: "0" ou "1"
+        if (substr($output, 0, 1) == '1') {
             $etat = 'images/2on.png';
         } else {
-            if (strpos("off", $output) === false) {
+            if (substr($output, 0, 1) != '0') {
                 $erreur .= "La lampe n'a pas communiqué son état actuel. ";
             }
             $etat = 'images/2off.png';
         }
 
-        // On scan la couleur de la lampe dans la réponse: "colorRRRGGGBBB"
-        $pos = strpos("color", $output);
+        // On scan la couleur de la lampe dans la réponse: "RRGGGBBB"
         if ($pos !== false) {                       // Si elle a communiqué sa couleur
-            $couleur = substr($output, $pos+5, 14); // "color" = 5 char, "RRRGGGBBB" = 9 char
+            $r = substr($output, 1, 3);
+            $g = substr($output, 4, 3);
+            $b = substr($output, 7, 3);
+            $couleur = rgb2hex(array($r, $g, $b));
         } else {
             $erreur .= "La lampe n'a pas communiqué sa couleur actuelle. ";
             $couleur = '#FFFFFF';
         }
     } else
     {
-        $erreur .= 'La lampe semble être injoignale. ';
+        $erreur .= 'La lampe semble être injoignale (timeout). ';
         $etat = 'images/2off.png';
         $couleur = '#FFFFFF';
     }
@@ -121,8 +108,8 @@
             <div class="control-group">
                 <div class="controls">
                     <div class="btn-group">
-                        <button type="submit" name="off" class="btn btn-danger">Éteindre</button>
-                        <button type="submit" name="on" class="btn btn-success">Allumer</button>
+                        <button type="submit" name="e" class="btn btn-danger" value="off">Éteindre</button>
+                        <button type="submit" name="e" class="btn btn-success" value="on">Allumer</button>
                     </div>
                     <img src=<?php echo '"'.$etat.'"'; ?> class="" alt="lampe">
                 </div>
