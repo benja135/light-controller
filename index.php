@@ -3,7 +3,7 @@
 *
 *   Auteur: LACHERAY Benjamin
 *   Date de création: 05/12/2015
-*   Dernière modification: 9/12/2015
+*   Dernière modification: 11/12/2015
 *
 -->
 
@@ -28,7 +28,7 @@
 
     
     // Si la lampe a répondu (eRRRGGGBBB)
-    if ($output != '') 
+    if (strlen($output) == 10)
     {
         // On scan l'état de la lampe dans la réponse: "0" ou "1"
         if (substr($output, 0, 1) == '1') {
@@ -40,19 +40,18 @@
             $etat = 'images/2off.png';
         }
 
-        // On scan la couleur de la lampe dans la réponse: "RRGGGBBB"
-        if ($pos !== false) {                       // Si elle a communiqué sa couleur
-            $r = substr($output, 1, 3);
-            $g = substr($output, 4, 3);
-            $b = substr($output, 7, 3);
-            $couleur = rgb2hex(array($r, $g, $b));
-        } else {
-            $erreur .= "La lampe n'a pas communiqué sa couleur actuelle. ";
-            $couleur = '#FFFFFF';
-        }
-    } else
-    {
+        // Couleur de la lampe dans la réponse: "RRGGGBBB"
+        $r = substr($output, 1, 3);
+        $g = substr($output, 4, 3);
+        $b = substr($output, 7, 3);
+        $couleur = rgb2hex(array($r, $g, $b));
+
+    } elseif ($output == '') { // timeout dans la plupart des cas
         $erreur .= 'La lampe semble être injoignale (timeout). ';
+        $etat = 'images/2off.png';
+        $couleur = '#FFFFFF';
+    } else {
+        $erreur .= "La lampe n'a pas communiqué les bonnes informations. ";
         $etat = 'images/2off.png';
         $couleur = '#FFFFFF';
     }
