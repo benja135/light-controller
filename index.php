@@ -15,7 +15,7 @@
 
     if (isset($_GET["e"])) {
         $url .= $_GET["e"];
-    } elseif (isset($_GET["c"]) && isset($_GET["c"])) {
+    } elseif (isset($_GET["c"]) && isset($_GET["i"])) {
         $url .= 'c' . hex2rgb($_GET["c"]) . ',' . $_GET["i"];
     }
     
@@ -26,17 +26,18 @@
     $output = curl_exec($ch);                       // execute
     curl_close($ch);                                // ferme la connexion
     
+    $etat = 'images/2off.png';
+    $couleur = '#FFFFFF';
+    $intensity = '0';
+
     // Si la lampe a répondu (eRRRGGGBBBIII)
     if (strlen($output) == 13)
     {
         // On scan l'état de la lampe dans la réponse: "0" ou "1"
         if (substr($output, 0, 1) == '1') {
             $etat = 'images/2on.png';
-        } else {
-            if (substr($output, 0, 1) != '0') {
-                $erreur .= "La lampe n'a pas communiqué son état actuel. ";
-            }
-            $etat = 'images/2off.png';
+        } elseif (substr($output, 0, 1) != '0') {
+            $erreur .= "La lampe n'a pas communiqué son état actuel. ";
         }
 
         // Couleur de la lampe dans la réponse: "RRGGGBBB"
@@ -47,17 +48,11 @@
 
         // Intensité de l'éclairage
         $intensity = intval(substr($output, 10, 3));
- 
+        
     } elseif ($output == '') { // timeout dans la plupart des cas
         $erreur .= 'La lampe semble être injoignale (timeout). ';
-        $etat = 'images/2off.png';
-        $couleur = '#FFFFFF';
-        $intensity = '0';
     } else {
         $erreur .= "La lampe n'a pas communiqué les bonnes informations. ";
-        $etat = 'images/2off.png';
-        $couleur = '#FFFFFF';
-        $intensity = '0';
     }
 ?>
 
