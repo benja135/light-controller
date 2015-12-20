@@ -78,7 +78,6 @@
             padding-left: 10%;
             padding-right: 10%;
         }
-
         #colorPicker {
             padding: 0px;
             margin: 0px;
@@ -96,13 +95,13 @@
                     if (value == 0) {
                         return "Éteint";
                     } else if (value == 100) {
-                        return "Pleine puissance";
+                        return "Lumineux";
                     }
                     return 'Intensité: ' + value + '%';
                 },
                 ticks: [0, 50, 100],
                 ticks_positions: [0, 50, 100],
-                ticks_labels: ['Éteint', 'Moyen', 'Pleine puissance'],
+                ticks_labels: ['Éteint', 'Moyen', 'Lumineux'],
                 ticks_snap_bounds: 4
             });
         });
